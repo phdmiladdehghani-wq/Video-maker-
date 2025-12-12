@@ -1,22 +1,19 @@
 name: Make Video From Image
 
-on: [workflow_dispatch]
+on: workflow_dispatch
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Install ffmpeg
         run: sudo apt-get update -y && sudo apt-get install -y ffmpeg
-
       - name: Create video
         run: |
           ffmpeg -loop 1 -i myphoto.jpg -vf "zoompan=z='zoom+0.0015':d=250:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1080x1920" -t 10 -r 25 -pix_fmt yuv420p output.mp4
-
       - name: Upload video
-        uses: actions/upload-artifact@v4   # ← فقط همین خط عوض شد
+        uses: actions/upload-artifact@v4
         with:
           name: my-video
           path: output.mp4
