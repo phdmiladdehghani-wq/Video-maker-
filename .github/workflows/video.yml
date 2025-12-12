@@ -1,4 +1,3 @@
-.github/workflows/video.yml
 name: Make Video From Image
 
 on:
