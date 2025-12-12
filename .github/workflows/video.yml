@@ -6,20 +6,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-    - name: Install FFmpeg
-      run: sudo apt-get update && sudo apt-get install -y ffmpeg
+    - name: Install ffmpeg
+      run: sudo apt-get update -y && sudo apt-get install -y ffmpeg
 
-    - name: Create video with zoom
+    - name: Create zoom video
       run: |
-        ffmpeg -loop 1 -i myphoto.jpg -vf "zoompan=z='zoom+0.0015':d=250:s=1080x1920" -t 10 -r 25 -pix_fmt yuv420p output.mp4
+        ffmpeg -loop 1 -i myphoto.jpg -vf "zoompan=z='zoom+0.0015':d=250:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1080x1920" -t 10 -r 25 -pix_fmt yuv420p output.mp4
 
     - name: Upload video
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: my-video
         path: output.mp4
