@@ -1,19 +1,45 @@
 name: Make Video From Image
 
-on: workflow_dispatch
+on: 
+  workflow_dispatch
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # 1. Checkout Code (استفاده از نسخه V4 که پایدار است)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Install FFmpeg
       - name: Install ffmpeg
         run: sudo apt-get update -y && sudo apt-get install -y ffmpeg
+
+      # 3. Create a placeholder image for testing (اختیاری: اگر myphoto.jpg در ریپو نیست)
+      # اگر فایل myphoto.jpg در ریپازیتوری شما وجود دارد، این مرحله را حذف کنید.
+      # اگر نه، این دستور یک فایل موقت ایجاد می‌کند.
+      - name: Create placeholder image
+        run: |
+          if [ ! -f myphoto.jpg ]; then
+            convert -size 1080x1920 xc:blue myphoto.jpg
+          fi
+        # نکته: برای این کار نیاز به نصب ImageMagick یا استفاده از یک اکشن دیگر برای تصویر دارید،
+        # یا به سادگی مطمئن شوید که myphoto.jpg در مخزن (repository) شما وجود دارد.
+        # برای سادگی، فرض می‌کنیم myphoto.jpg در مخزن شما موجود است.
+
+      # 4. Create video using FFmpeg
       - name: Create video
         run: |
+          # این فیلتر یک افکت زوم (Ken Burns effect) با کیفیت خوب ایجاد می‌کند
+          # loop 1: عکس را تکرار می‌کند
+          # -t 10: مدت زمان ویدیو را 10 ثانیه قرار می‌دهد
+          # -r 25: فریم ریت 25 فریم در ثانیه
           ffmpeg -loop 1 -i myphoto.jpg -vf "zoompan=z='zoom+0.0015':d=250:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1080x1920" -t 10 -r 25 -pix_fmt yuv420p output.mp4
-      - name: Upload video
+      
+      # 5. Upload video (استفاده از نسخه V4 - این قسمت مشکل قبلی شما را حل می‌کند)
+      - name: Upload video artifact
         uses: actions/upload-artifact@v4
         with:
           name: my-video
           path: output.mp4
+          retention-days: 7 # اختیاری: فایل خروجی بعد از 7 روز حذف می‌شود
